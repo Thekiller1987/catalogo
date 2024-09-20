@@ -1,56 +1,70 @@
 const express = require('express');
-const mysql = require('mysql2'); // Cambiado a mysql2
+const mysql = require('mysql');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-// Conexión a la base de datos en Railway
+// Configurar la carpeta de archivos estáticos
+app.use(express.static('public'));
+
+// Conexión con la base de datos MySQL
 const db = mysql.createConnection({
-  host: 'junction.proxy.rlwy.net', // Cambiar por el host de tu base de datos en Railway
-  user: 'root', // El usuario de tu base de datos, en este caso, 'root'
-  password: 'sLLJbGObdfZJkDfvsAhXHaPbOUWbFerH', // Cambia esta línea con tu contraseña de Railway
-  database: 'railway', // La base de datos que estás usando
-  port: 55111, // El puerto de Railway
-  connectTimeout: 10000, // Tiempo de espera de conexión en milisegundos (opcional)
+  host: 'localhost', 
+  user: 'root',
+  password: '1987', 
+  database: 'catalogo'
 });
 
-// Verificar conexión
 db.connect((err) => {
-  if (err) {
-    console.error('Error conectando a la base de datos:', err);
-    return;
-  }
-  console.log('Conectado a la base de datos de Railway');
+  if (err) throw err;
+  console.log('Conectado a la base de datos MySQL');
+});
+
+// Ruta para agregar un producto
+app.post('/productos', (req, res) => {
+  const { codigo, descripcion, precioVenta, precioMayorista, imagenBase64 } = req.body;
+  const sql = 'INSERT INTO productos (codigo, descripcion, precio_venta, precio_mayorista, imagen_base64) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [codigo, descripcion, precioVenta, precioMayorista, imagenBase64], (err, result) => {
+    if (err) throw err;
+    res.send('Producto agregado correctamente');
+  });
 });
 
 // Ruta para obtener todos los productos
 app.get('/productos', (req, res) => {
-  const query = 'SELECT * FROM productos';
-  db.query(query, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
+  const sql = 'SELECT * FROM productos';
+  db.query(sql, (err, results) => {
+    if (err) throw err;
     res.json(results);
   });
 });
 
-// Ruta para crear un producto
-app.post('/productos', (req, res) => {
-  const { codigo, descripcion, precio_venta, precio_mayorista, imagen_base64 } = req.body;
-  const query = 'INSERT INTO productos (codigo, descripcion, precio_venta, precio_mayorista, imagen_base64) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [codigo, descripcion, precio_venta, precio_mayorista, imagen_base64], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
-    res.status(201).json({ message: 'Producto creado correctamente', id: result.insertId });
+// Ruta para eliminar un producto
+app.delete('/productos/:id', (req, res) => {
+  const id = req.params.id;
+  const sql = 'DELETE FROM productos WHERE id = ?';
+  db.query(sql, [id], (err, result) => {
+    if (err) throw err;
+    res.send('Producto eliminado correctamente');
   });
 });
 
-// Iniciar servidor
-app.listen(port, () => {
-  console.log(`Servidor ejecutándose en el puerto ${port}`);
+// Ruta para editar un producto
+app.put('/productos/:id', (req, res) => {
+  const id = req.params.id;
+  const { codigo, descripcion, precioVenta, precioMayorista, imagenBase64 } = req.body;
+  const sql = 'UPDATE productos SET codigo = ?, descripcion = ?, precio_venta = ?, precio_mayorista = ?, imagen_base64 = ? WHERE id = ?';
+  db.query(sql, [codigo, descripcion, precioVenta, precioMayorista, imagenBase64, id], (err, result) => {
+    if (err) throw err;
+    res.send('Producto actualizado correctamente');
+  });
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
