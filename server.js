@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2'); // Cambiado a mysql2
 const cors = require('cors');
 
 const app = express();
@@ -15,6 +15,7 @@ const db = mysql.createConnection({
   password: 'sLLJbGObdfZJkDfvsAhXHaPbOUWbFerH', // Cambia esta línea con tu contraseña de Railway
   database: 'railway', // La base de datos que estás usando
   port: 55111, // El puerto de Railway
+  connectTimeout: 10000, // Tiempo de espera de conexión en milisegundos (opcional)
 });
 
 // Verificar conexión
