@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Producto</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Crear Producto</h1>
+  </header>
+
+  <main>
+    <form id="product-form">
+      <input type="text" id="codigo" placeholder="Código Único" required>
+      <input type="text" id="descripcion" placeholder="Descripción" required>
+      <input type="number" id="precio-venta" placeholder="Precio de Venta" required>
+      <input type="number" id="precio-mayorista" placeholder="Precio Mayorista" required>
+      <input type="file" id="imagen" accept="image/*" required>
+      <button type="submit" class="create-btn">Agregar Producto</button>
+    </form>
+
+    <!-- Mensaje de éxito -->
+    <p id="success-message" style="display:none; color: green;">Producto agregado correctamente!</p>
+    
+    <!-- Botón para regresar a la vista principal -->
+    <a href="index.html" class="return-btn">Regresar a la Vista Principal</a>
+  </main>
+
+  <script src="crearProducto.js"></script>
+</body>
+</html>
